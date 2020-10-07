@@ -37,37 +37,45 @@ class Player(object):
     def generateNextMove():
         pass
 
-    def moveUp(self,board):
+    def moveUp(self,position,board):
         newBoard = board
-        position = self.position
+        position = position
         x = ()
         if(position[0]-1 > 0 and board[position[0]-2][position[1]-1]==None):
             x = (position[0]-1,position[1])
-            return x
+            newBoard[position[0]-2][position[1]-1] = newBoard[position[0]-1][position[1]-1]
+            newBoard[position[0]-1][position[1]-1] = None
+            return x,newBoard
     
-    def moveDown(self,board):
+    def moveDown(self,position,board):
         newBoard = board
         position = self.position
         x = ()
         if(position[0]+1 < 5 and board[position[0]][position[1]-1]==None):
             x = (position[0]+1,position[1])
-            return x
+            board[position[0]][position[1]-1] = newBoard[position[0]-1][position[1]-1]
+            newBoard[position[0]-1][position[1]-1] = None
+            return x,newBoard
     
-    def moveLeft(self,board):
+    def moveLeft(self,position,board):
         newBoard = board
         position = self.position
         x = ()
         if(position[1]-1 > 0 and board[position[0]-1][position[1]-2]==None):
             x = (position[0],position[1]-1)
-            return x
+            board[position[0]-1][position[1]-2] = newBoard[position[0]-1][position[1]-1]
+            newBoard[position[0]-1][position[1]-1] = None
+            return x,newBoard
     
-    def moveRight(self,board):
+    def moveRight(self,position,board):
         newBoard = board
         position = self.position
         x = ()
         if(position[1]+1 <5  and board[position[0]-1][position[1]]==None):
             x = (position[0],position[1]+1)
-            return x
+            board[position[0]-1][position[1]] = newBoard[position[0]-1][position[1]-1]
+            newBoard[position[0]-1][position[1]-1] = None
+            return x,newBoard
 
 class Game(object):
     GameTree = []
@@ -80,11 +88,17 @@ class Game(object):
     queue = deque()
     initial_state = State(players)
     root = {"State": initial_state.playerPositions, "Parent": None, "Level": 0, "Action": None, "Current Player": None, "Parent": None, 
-    "Repeated": False, "Terminating": False, "Winner": None}
+    "Repeated": False, "Terminating": False, "Winner": None, "Board":INITIAL_BOARD}
     queue.append(root)
-    up = Player2.moveLeft(INITIAL_BOARD)
-    print(up)
-
+    up = Player3.moveUp(initial_state.playerPositions[3],INITIAL_BOARD)    
+    playerTurn = 0
+    
+    # while(queue):
+    #     if(playerTurn < 4):
+    #         playerTurn +=1
+    #     else:
+    #         playerTurn = 0
+   
     # while(queue):
     #     current = queue.popleft()
     #     print(current)
