@@ -1,5 +1,4 @@
 import operator
-
 from util import contains_negative
 from util import operate_on_tuples
 from .state_constants import INITIAL_STATE
