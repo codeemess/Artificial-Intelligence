@@ -3,16 +3,17 @@ import json
 
 class GenerateGameTree(object):
     ROOT = {"State": {1:(1,1), 2:(4,1), 3:(4,4), 4:(1,4)}, "Parent": "None", "Level": 0, "Action": "None", "CurrentPlayer": 0, 
-    "Repeated": False, "Terminating": False, "Winner": "None", "WinStates" : {1:(4,4), 2:(1,4), 3:(1,1), 4:(4,1)}}
+    "Repeated": False, "Terminating": False, "Winner": "None", "WinStates" : {1:(4,4), 2:(1,4), 3:(1,1), 4:(4,1)}, "Utility": {}}
     GameTree = {}
     ExploredStates = ()
 
-    def moveLeft(self,node):
+    def moveLeft(self,node,parent):
         if node["Terminating"] == True or node["Repeated"] == True:
             return "Invalid"
         else:
             newNode = {}
             newNode["Parent"] = node["State"]
+            newNode["ParentNode"] = parent
             player = node["CurrentPlayer"] + 1
             if player == 5:
                 player = 1
@@ -37,16 +38,18 @@ class GenerateGameTree(object):
                 newNode["Winner"] = "None"
                 newNode["WinStates"] = node["WinStates"]
                 newNode["Terminating"] = False
+                newNode["Utility"] = {}
                 return newNode
             else:
                 return "Invalid"
     
-    def moveRight(self,node):
+    def moveRight(self,node,parent):
         if node["Terminating"] == True or node["Repeated"] == True:
             return "Invalid"
         else:
             newNode = {}
             newNode["Parent"] = node["State"]
+            newNode["ParentNode"] = parent
             player = node["CurrentPlayer"] + 1
             if player == 5:
                 player = 1
@@ -71,16 +74,18 @@ class GenerateGameTree(object):
                 newNode["Winner"] = "None"
                 newNode["WinStates"] = node["WinStates"]
                 newNode["Terminating"] = False
+                newNode["Utility"] = {}
                 return newNode
             else:
                 return "Invalid"
     
-    def moveDown(self,node):
+    def moveDown(self,node,parent):
         if node["Terminating"] == True or node["Repeated"] == True:
             return "Invalid"
         else:
             newNode = {}
             newNode["Parent"] = node["State"]
+            newNode["ParentNode"] = parent
             player = node["CurrentPlayer"] + 1
             if player == 5:
                 player = 1
@@ -105,16 +110,18 @@ class GenerateGameTree(object):
                 newNode["Winner"] = "None"
                 newNode["WinStates"] = node["WinStates"]
                 newNode["Terminating"] = False
+                newNode["Utility"] = {}
                 return newNode
             else:
                 return "Invalid"
     
-    def moveUp(self,node):
+    def moveUp(self,node,parent):
         if node["Terminating"] == True or node["Repeated"] == True:
             return "Invalid"
         else:
             newNode = {}
             newNode["Parent"] = node["State"]
+            newNode["ParentNode"] = parent
             player = node["CurrentPlayer"] + 1
             if player == 5:
                 player = 1
@@ -139,6 +146,7 @@ class GenerateGameTree(object):
                 newNode["Winner"] = "None"
                 newNode["WinStates"] = node["WinStates"]
                 newNode["Terminating"] = False
+                newNode["Utility"] = {}
                 return newNode
             else:
                 return "Invalid"
@@ -148,7 +156,7 @@ class GenerateGameTree(object):
             if (node["State"][k] == node["WinStates"][k]) :
                 node["Winner"] = k
                 node["Terminating"] = True
-                print(k)
+                # print(k)
         return node
     
     def checkAndUpdateRepeatedState(self,node):
@@ -173,12 +181,11 @@ class GenerateGameTree(object):
             current = self.checkTerminalState(current)
             current = self.checkAndUpdateRepeatedState(current)
             self.GameTree[count] = current
-            count += 1
             if(current["Repeated"] == False and current["Terminating"] == False):
-                Left = self.moveLeft(current)
-                Right = self.moveRight(current)
-                Up = self.moveUp(current)
-                Down = self.moveDown(current)
+                Left = self.moveLeft(current,count)
+                Right = self.moveRight(current,count)
+                Up = self.moveUp(current,count)
+                Down = self.moveDown(current,count)
                 
                 if(Left != "Invalid"):
                     #print(Left)
@@ -194,6 +201,7 @@ class GenerateGameTree(object):
                 if(Down != "Invalid"):
                     #print(Down)
                     q.put(Down)
+                count += 1
             else:
                 continue
     
