@@ -1,5 +1,6 @@
 from collections import deque
 import operator
+import json
 INITIAL_BOARD = [[1,"None","None",2],["None","None","None","None"],["None","None","None","None"],[4,"None","None",3]]
     
 class State(object):
@@ -41,13 +42,12 @@ class Player(object):
 
     def moveUp(self,position,board):
         newBoard = board
-        position = position
         x = []
-        x.append(position[0]-11)
+        x.append(position[0]-1)
         x.append(position[1])
         if(position[0]-1 > 0 and board[position[0]-2][position[1]-1]=="None"):
-            x = (position[0]-1,position[1])
-            newBoard[position[0]-2][position[1]-1] = newBoard[position[0]-1][position[1]-1]
+            # x = (position[0]-1,position[1])
+            newBoard[position[0]-2][position[1]-1] = board[position[0]-1][position[1]-1]
             newBoard[position[0]-1][position[1]-1] = "None"
             
         if(x[0]>0):
@@ -57,12 +57,11 @@ class Player(object):
     
     def moveDown(self,position,board):
         newBoard = board
-        position = self.position
         x = []
         x.append(position[0]+1)
         x.append(position[1])
         if(x[0] < 5 and board[position[0]][position[1]-1]=="None"):
-            board[position[0]][position[1]-1] = newBoard[position[0]-1][position[1]-1]
+            board[position[0]][position[1]-1] = board[position[0]-1][position[1]-1]
             newBoard[position[0]-1][position[1]-1] = "None"
         if(x[0]<5):
             return tuple(x),newBoard
@@ -71,13 +70,12 @@ class Player(object):
     
     def moveLeft(self,position,board):
         newBoard = board
-        position = self.position
         x = []
-        x.append(position[0]+1)
+        x.append(position[0])
         x.append(position[1]-1)
         if(position[1]-1 > 0 and board[position[0]-1][position[1]-2]=="None"):
-            x = (position[0],position[1]-1)
-            board[position[0]-1][position[1]-2] = newBoard[position[0]-1][position[1]-1]
+            # x = (position[0],position[1]-1)
+            board[position[0]-1][position[1]-2] = board[position[0]-1][position[1]-1]
             newBoard[position[0]-1][position[1]-1] = "None"
         if(x[1]>0 ):
             return tuple(x),newBoard
@@ -86,13 +84,12 @@ class Player(object):
     
     def moveRight(self,position,board):
         newBoard = board
-        position = self.position
         x = []
         x.append(position[0])
         x.append(position[1]+1)
         if(position[1]+1 <5  and board[position[0]-1][position[1]]=="None"):
-            x = (position[0],position[1]+1)
-            board[position[0]-1][position[1]] = newBoard[position[0]-1][position[1]-1]
+            # x = (position[0],position[1]+1)
+            board[position[0]-1][position[1]] = board[position[0]-1][position[1]-1]
             newBoard[position[0]-1][position[1]-1] = "None"
             
         if(x[1]<5):
@@ -107,6 +104,7 @@ class Player(object):
 
 
 class Game(object):
+
     GameTree = []
     exploredStates = ()
     Player1 = Player((1,1),(4,4))
@@ -117,23 +115,11 @@ class Game(object):
     players = [Player1,Player2,Player3,Player4]
     queue = deque()
     initial_state = State(players)
-    root = {"State": initial_state.playerPositions, "Parent": "None", "Level": 0, "Action": "None", "Current Player": "None", 
+    root = {"State": initial_state.playerPositions, "Parent": "None", "Level": 0, "Action": "None", "Current Player": 0, 
     "Repeated": False, "Terminating": False, "Winner": "None", "Board":INITIAL_BOARD}
     queue.append(root)
-    # up = Player3.moveUp(initial_state.playerPositions[3],INITIAL_BOARD)    
     playerTurn = 1
-    # listx = [(k, v) for k, v in root["State"].items()]
-    # listy = [(k, v) for k, v in root["State"].items()]
-    # x = tuple(listx)
-    # y = tuple(listy)
-    # temp = list(exploredStates)
-    # temp.append(x)
-    # temp.append(y)
-    # exploredStates = set(exploredStates)
-    # exploredStates = tuple(temp)
-    # exploredStates = set(exploredStates)
-    # print(exploredStates)
-    
+        
     while(queue):
         
         current = queue.popleft()
@@ -143,137 +129,142 @@ class Game(object):
         temp.append(x)
         exploredStates = tuple(temp)
         exploredStates = set(exploredStates)
-
-        if(playerTurn < 5):
-            parent = current["State"]
-            level = current["Level"] + 1
-            player = players[playerTurn-1]
-            
-            if(current["Terminating"] == False and current["Repeated"] == False):
-
-                o = player.moveDown(current['State'][playerTurn],current['Board'])
-                if(o != 0):
-                    
-                    down = player.moveDown(current['State'][playerTurn],current['Board'])
-                    # print(down)
-                    updatedState = current["State"]
-                    updatedState[playerTurn] = o[0]
-                    board = o[1]
-                    repeated = False
-                    terminate = False
-                    winner = "None"
-                    listzzz = tuple([(k, v) for k, v in updatedState.items()])
-                    if listzzz in exploredStates:
-                        repeated = True
-                    if player.isTerminatingCondition(o[0]):
-                        terminate = True
-                        winner = playerTurn
-                    newNode = current
-                    newNode["State"] = updatedState
-                    newNode["Parent"] = parent
-                    newNode["Level"] = level
-                    newNode["Action"] = "Right"
-                    newNode["Current Player"] = playerTurn
-                    newNode["Repeated"] = repeated
-                    newNode["Board"] = board
-                    newNode["Terminating"] = terminate
-                    newNode["Winner"] = winner
-                    print(newNode)
-                    queue.append(newNode)
-                    GameTree.append(newNode)
-
-                p = player.moveUp(current['State'][playerTurn],current['Board']) 
-                if(p != 0):    
-                    up = player.moveUp(current['State'][playerTurn],current['Board'])
-                    updatedState = current["State"]
-                    updatedState[playerTurn] = p[0]
-                    board = p[1]
-                    repeated = False
-                    terminate = False
-                    winner = "None"
-                    listzzz = tuple([(k, v) for k, v in updatedState.items()])
-                    if listzzz in exploredStates:
-                        repeated = True
-                    if player.isTerminatingCondition(p[0]):
-                        terminate = True
-                        winner = playerTurn
-                    newNode = current
-                    newNode["State"] = updatedState
-                    newNode["Parent"] = parent
-                    newNode["Level"] = level
-                    newNode["Action"] = "Right"
-                    newNode["Current Player"] = playerTurn
-                    newNode["Repeated"] = repeated
-                    newNode["Board"] = board
-                    newNode["Terminating"] = terminate
-                    newNode["Winner"] = winner
-                    print(newNode)
-                    queue.append(newNode)
-                    GameTree.append(newNode)
-                
-                q = player.moveLeft(current['State'][playerTurn],current['Board'])
-                if(q != 0):
-                    left = player.moveLeft(current['State'][playerTurn],current['Board']) 
-                    updatedState = current["State"]
-                    updatedState[playerTurn] = q[0]  
-                    board = q[1]
-                    repeated = False
-                    terminate = False
-                    winner = "None"
-                    listzzz = tuple([(k, v) for k, v in updatedState.items()])  
-                    if listzzz in exploredStates:
-                        repeated = True
-                    if player.isTerminatingCondition(q[0]):
-                        terminate = True
-                        winner = playerTurn
-                    newNode = current
-                    newNode["State"] = updatedState
-                    newNode["Parent"] = parent
-                    newNode["Level"] = level
-                    newNode["Action"] = "Right"
-                    newNode["Current Player"] = playerTurn
-                    newNode["Repeated"] = repeated
-                    newNode["Board"] = board
-                    newNode["Terminating"] = terminate
-                    newNode["Winner"] = winner
-                    print(newNode)
-                    queue.append(newNode)
-                    GameTree.append(newNode)
-                
-                r= player.moveRight(current['State'][playerTurn],current['Board'])
-                if(r != 0):
-                    right = player.moveRight(current['State'][playerTurn],current['Board'])
-                    updatedState = current["State"]
-                    updatedState[playerTurn] = r[0]
-                    board = r[1]
-                    repeated = False
-                    terminate = False
-                    winner = "None"
-                    listzzz = tuple([(k, v) for k, v in updatedState.items()])
-                    if listzzz in exploredStates:
-                        repeated = True
-                    if player.isTerminatingCondition(r[0]):
-                        terminate = True
-                        winner = playerTurn
-                    newNode = current
-                    newNode["State"] = updatedState
-                    newNode["Parent"] = parent
-                    newNode["Level"] = level
-                    newNode["Action"] = "Right"
-                    newNode["Current Player"] = playerTurn
-                    newNode["Repeated"] = repeated
-                    newNode["Board"] = board
-                    newNode["Terminating"] = terminate
-                    newNode["Winner"] = winner
-                    print(newNode)
-                    queue.append(newNode)
-                    GameTree.append(newNode)
-
-            print(playerTurn)
-            playerTurn = playerTurn +1
-        else:
+        
+        parent = current["State"]
+        level = current["Level"] + 1
+        playerTurn = current["Current Player"]
+        
+        if current["Current Player"] == 4:
             playerTurn = 1
+        else:
+            playerTurn = playerTurn +1
+        
+        player = players[playerTurn-1]
+
+        if(current["Terminating"] == False or current["Repeated"] == False):
+
+            o = player.moveDown(current['State'][playerTurn],current['Board'])
+            if(o != 0):
+                
+                # down = player.moveDown(current['State'][playerTurn],current['Board'])
+                # print(down)
+                updatedState = current["State"]
+                updatedState[playerTurn] = o[0]
+                board = o[1]
+                repeated = False
+                terminate = False
+                winner = "None"
+                listzzz = tuple([(k, v) for k, v in updatedState.items()])
+                if listzzz in exploredStates:
+                    repeated = True
+                if player.isTerminatingCondition(o[0]):
+                    terminate = True
+                    winner = playerTurn
+                newNode = {}
+                newNode["State"] = updatedState
+                newNode["Parent"] = parent
+                newNode["Level"] = level
+                newNode["Action"] = "Down"
+                newNode["Current Player"] = playerTurn
+                newNode["Repeated"] = repeated
+                newNode["Board"] = board
+                newNode["Terminating"] = terminate
+                newNode["Winner"] = winner
+                print(newNode)
+                queue.append(newNode)
+                GameTree.append(newNode)
+
+            p = player.moveUp(current['State'][playerTurn],current['Board']) 
+            if(p != 0):    
+                up = player.moveUp(current['State'][playerTurn],current['Board'])
+                updatedState = current["State"]
+                updatedState[playerTurn] = p[0]
+                board = p[1]
+                repeated = False
+                terminate = False
+                winner = "None"
+                listzzz = tuple([(k, v) for k, v in updatedState.items()])
+                if listzzz in exploredStates:
+                    repeated = True
+                if player.isTerminatingCondition(p[0]):
+                    terminate = True
+                    winner = playerTurn
+                newNode = {}
+                newNode["State"] = updatedState
+                newNode["Parent"] = parent
+                newNode["Level"] = level
+                newNode["Action"] = "Up"
+                newNode["Current Player"] = playerTurn
+                newNode["Repeated"] = repeated
+                newNode["Board"] = board
+                newNode["Terminating"] = terminate
+                newNode["Winner"] = winner
+                print(newNode)
+                queue.append(newNode)
+                GameTree.append(newNode)
             
+            q = player.moveLeft(current['State'][playerTurn],current['Board'])
+            if(q != 0):
+                left = player.moveLeft(current['State'][playerTurn],current['Board']) 
+                updatedState = current["State"]
+                updatedState[playerTurn] = q[0]  
+                board = q[1]
+                repeated = False
+                terminate = False
+                winner = "None"
+                listzzz = tuple([(k, v) for k, v in updatedState.items()])  
+                if listzzz in exploredStates:
+                    repeated = True
+                if player.isTerminatingCondition(q[0]):
+                    terminate = True
+                    winner = playerTurn
+                newNode = {}
+                newNode["State"] = updatedState
+                newNode["Parent"] = parent
+                newNode["Level"] = level
+                newNode["Action"] = "Left"
+                newNode["Current Player"] = playerTurn
+                newNode["Repeated"] = repeated
+                newNode["Board"] = board
+                newNode["Terminating"] = terminate
+                newNode["Winner"] = winner
+                print(newNode)
+                queue.append(newNode)
+                GameTree.append(newNode)
+            
+            r= player.moveRight(current['State'][playerTurn],current['Board'])
+            if(r != 0):
+                right = player.moveRight(current['State'][playerTurn],current['Board'])
+                updatedState = current["State"]
+                updatedState[playerTurn] = r[0]
+                board = r[1]
+                repeated = False
+                terminate = False
+                winner = "None"
+                listzzz = tuple([(k, v) for k, v in updatedState.items()])
+                if listzzz in exploredStates:
+                    repeated = True
+                if player.isTerminatingCondition(r[0]):
+                    terminate = True
+                    winner = playerTurn
+                newNode = {}
+                newNode["State"] = updatedState
+                newNode["Parent"] = parent
+                newNode["Level"] = level
+                newNode["Action"] = "Right"
+                newNode["Current Player"] = playerTurn
+                newNode["Repeated"] = repeated
+                newNode["Board"] = board
+                newNode["Terminating"] = terminate
+                newNode["Winner"] = winner
+                print(newNode) 
+                queue.append(newNode)
+                GameTree.append(newNode)
+    
+    with open("sample.json", "w") as outfile: 
+        json.dump(GameTree, outfile) 
+
+
 g = Game()
 
 # [Current player =???| Father node (if not initial node) =???| Action= ????| Current game node =???| 
