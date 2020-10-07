@@ -177,9 +177,10 @@ class GenerateGameTree(object):
         count = 0
         while( q.empty() == False):
             current = q.get()
-            # print(current)
+            
             current = self.checkTerminalState(current)
             current = self.checkAndUpdateRepeatedState(current)
+            print(current)
             self.GameTree[count] = current
             if(current["Repeated"] == False and current["Terminating"] == False):
                 Left = self.moveLeft(current,count)
@@ -205,11 +206,11 @@ class GenerateGameTree(object):
             else:
                 continue
     
-    def saveToFile(self):
-        with open('result.json', 'w') as fp:
-            json.dump(self.GameTree,fp)
+    # def saveToFile(self):
+    #     with open('result.json', 'w') as fp:
+    #         json.dump(self.GameTree,fp)
 
 
 g = GenerateGameTree()
 g.generateGameTree(g.ROOT)
-g.saveToFile()
+# g.saveToFile()
