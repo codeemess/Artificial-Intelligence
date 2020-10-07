@@ -1,5 +1,6 @@
 from collections import deque
-INITIAL_STATE = [[1,None,None,2],[None,None,None,None],[None,None,None,None],[4,None,None,3]]
+import operator
+INITIAL_BOARD = [[1,None,None,2],[None,None,None,None],[None,None,None,None],[4,None,None,3]]
     
 class State(object):
     
@@ -17,9 +18,9 @@ class State(object):
         for player in range(1,5):
             self.playerPositions[player] =  players[player-1].position
         
-    def generateValidPositions(position,action):
+    def generateValidPositions(state):
         pass
-    
+
     def isTerminatingCondition(position):
         pass
 
@@ -36,6 +37,38 @@ class Player(object):
     def generateNextMove():
         pass
 
+    def moveUp(self,board):
+        newBoard = board
+        position = self.position
+        x = ()
+        if(position[0]-1 > 0 and board[position[0]-2][position[1]-1]==None):
+            x = (position[0]-1,position[1])
+            return x
+    
+    def moveDown(self,board):
+        newBoard = board
+        position = self.position
+        x = ()
+        if(position[0]+1 < 5 and board[position[0]][position[1]-1]==None):
+            x = (position[0]+1,position[1])
+            return x
+    
+    def moveLeft(self,board):
+        newBoard = board
+        position = self.position
+        x = ()
+        if(position[1]-1 > 0 and board[position[0]-1][position[1]-2]==None):
+            x = (position[0],position[1]-1)
+            return x
+    
+    def moveRight(self,board):
+        newBoard = board
+        position = self.position
+        x = ()
+        if(position[1]+1 <5  and board[position[0]-1][position[1]]==None):
+            x = (position[0],position[1]+1)
+            return x
+
 class Game(object):
     GameTree = []
     exploredStates = {}
@@ -49,9 +82,12 @@ class Game(object):
     root = {"State": initial_state.playerPositions, "Parent": None, "Level": 0, "Action": None, "Current Player": None, "Parent": None, 
     "Repeated": False, "Terminating": False, "Winner": None}
     queue.append(root)
-    while(queue):
-        current = queue.popleft()
-        print(current)   
+    up = Player2.moveLeft(INITIAL_BOARD)
+    print(up)
+
+    # while(queue):
+    #     current = queue.popleft()
+    #     print(current)
     #print(initial_state.playerPositions)
     #def generateGameTree(players,chance):
         
