@@ -181,7 +181,6 @@ class GenerateGameTree(object):
             current = self.checkTerminalState(current)
             current = self.checkAndUpdateRepeatedState(current)
             print(current)
-            self.GameTree[count] = current
             if(current["Repeated"] == False and current["Terminating"] == False):
                 Left = self.moveLeft(current,count)
                 Right = self.moveRight(current,count)
@@ -213,4 +212,4 @@ class GenerateGameTree(object):
 
 g = GenerateGameTree()
 g.generateGameTree(g.ROOT)
-# g.saveToFile()
+g.saveToFile()
